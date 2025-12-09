@@ -27,8 +27,6 @@ table(resale_real$street_name)
 #Lets just work with the one with the new added variables
 rm(list=ls())
 resale_real <- read.csv('resale_updated.csv')
-
-
 ```
 
 ```{r}
@@ -228,4 +226,17 @@ ggplot(resale_real, aes(x = X, y = Y, color = resale_price)) +
   theme_minimal()
 ```
 
+
+```{r}
+ggplot(resale, aes(x = reorder(town, resale_price, median), 
+                   y = resale_price)) +
+  geom_boxplot(fill = "#4C72B0", alpha = 0.7, outlier.alpha = 0.5) +
+  labs(
+    title = "HDB Resale Price by Town (Ordered by Median Price)",
+    x = "Town",
+    y = "Resale Price (SGD)"
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
 
