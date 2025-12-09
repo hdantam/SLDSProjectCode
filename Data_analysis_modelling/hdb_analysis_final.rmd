@@ -1,0 +1,231 @@
+---
+title: "HDB_Dataset"
+author: "Hemant Dantam"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+rm(list = ls())
+library(dplyr)
+```
+
+```{r cars}
+#Reading original dataset
+resale_orig <- read.csv('resale_original.csv')
+```
+
+```{r}
+table(resale_real$street_name)
+```
+
+```{r}
+#Lets just work with the one with the new added variables
+rm(list=ls())
+resale_real <- read.csv('resale_updated.csv')
+
+
+```
+
+```{r}
+glimpse(resale_real)
+```
+
+
+Lets look at these values to get a better idea of their ranges
+```{r}
+table(resale_real$town)
+```
+```{r}
+hist(resale_real$resale_price,
+     main = "Distribution of Resale Prices",
+     xlab = "Resale Price",
+     col = "lightblue",
+     border = "white")
+```
+
+```{r}
+#Lets look by year
+library(ggplot2)
+
+ggplot(resale_real, aes(x = resale_price)) +
+  geom_histogram(fill = "steelblue", color = "white", bins = 40) +
+  facet_wrap(~ year, scales = "free_y") +
+  labs(
+    title = "Resale Price Distribution by Year",
+    x = "Resale Price",
+    y = "Count"
+  )
+```
+```{r}
+summary_by_year_2 <- resale_real %>%
+  group_by(year) %>%
+  summarise(
+    n = n(),  # number of transactions
+    mean_price = mean(resale_price, na.rm = TRUE),
+    median_price = median(resale_price, na.rm = TRUE),
+    min_price = min(resale_price, na.rm = TRUE),
+    max_price = max(resale_price, na.rm = TRUE),
+    sd_price = sd(resale_price, na.rm = TRUE)
+  )
+
+summary_by_year_2
+
+
+ggplot(resale_real, aes(x = year, y = resale_price)) +
+  geom_boxplot(fill = "steelblue") +
+  labs(title = "Inflation-Adjusted HDB Resale Prices by Year",
+       x = "Year",
+       y = "Real Resale Price (SGD)")
+```
+
+
+```{r}
+library(ggplot2)
+plt1 <- ggplot(resale_real, aes(x = closest_mrt_dist, y = resale_price, color = year)) +
+  geom_point(alpha = 0.7) +   # blue points
+  labs(
+    title = "HDB Resale Price vs Distance to MRT",
+    x = "Distance to Nearest MRT (meters)",
+    y = "Resale Price (SGD)"
+  )
+cor(resale_real$resale_price_real, resale_real$closest_mrt_dist)
+
+
+plt2<- ggplot(resale_real, aes(x = closest_bus_dist, y = resale_price, color = year)) +
+  geom_point(alpha = 0.7) +   # blue points
+  labs(
+    title = "HDB Resale Price vs Distance to Bus",
+    x = "Distance to Nearest Bus (meters)",
+    y = "Resale Price (SGD)"
+  )
+
+plt3 <- ggplot(resale_real, aes(x = closest_school_dist, y = resale_price_real, color = year)) +
+  geom_point(alpha = 0.7) +   # blue points
+  labs(
+    title = "HDB Resale Price vs Distance to School",
+    x = "Distance to Nearest School (meters)",
+    y = "Resale Price (SGD)"
+  )
+
+plt1
+rm(plt1)
+plt2
+rm(plt2)
+plt3
+rm(plt3)
+
+```
+```{r}
+#Lets just look at the distribution of dates
+table()
+
+```
+
+```{r}
+#Visualizing story range vs resale price
+ggplot(resale_real, aes(x = storey_range, y = resale_price)) +
+  geom_boxplot(fill = "#4C72B0", alpha = 0.7) +
+  labs(
+    title = "HDB Resale Price by Storey Range",
+    x = "Storey Range",
+    y = "Resale Price (SGD)"
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1)  # rotate 45 degrees
+  )
+
+```
+
+```{r}
+ggplot(resale_real, aes(x = reorder(flat_model, resale_price, FUN = median),
+                        y = resale_price)) +
+  geom_boxplot(fill = "#4C72B0", alpha = 0.7) +
+  labs(
+    title = "HDB Resale Price by Flat Model",
+    x = "Flat Model",
+    y = "Resale Price (SGD)"
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1)
+  )
+```
+```{r}
+ggplot(resale_real, aes(x = reorder(flat_type, resale_price, FUN = median),
+                        y = resale_price)) +
+  geom_boxplot(fill = "#4C72B0", alpha = 0.7) +
+  labs(
+    title = "HDB Resale Price by Flat Type",
+    x = "Flat Type",
+    y = "Resale Price (SGD)"
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1)
+  )
+```
+
+```{r}
+#Square meters to price
+ggplot(resale_real, aes(x = floor_area_sqm, y = resale_price, color = year)) +
+  geom_point(alpha = 0.7) +   # blue points
+  labs(
+    title = "HDB Resale Price vs Floor area",
+    x = "Floor Area (sqm)",
+    y = "Resale Price (SGD)"
+  )
+```
+
+```{r}
+
+
+ggplot(resale_real, aes(x = remaining_lease_years, y = resale_price, color = year)) +
+  geom_point(alpha = 0.7) +   # blue points
+  labs(
+    title = "HDB Resale Price vs Remaining Lease",
+    x = "Remaining Lease (years)",
+    y = "Resale Price (SGD)"
+  )
+
+ggplot(resale_real, aes(x = remaining_lease_years, y = resale_price)) +
+  geom_point(color = "#4C72B0") +
+  labs(
+    title = "Resale Price vs Remaining Lease",
+    x = "Remaining Lease (years)",
+    y = "Resale Price (SGD)"
+  ) +
+  theme_minimal()
+```
+```{r}
+ggplot(resale_real, aes(x = LONGITUDE, y = LATITUDE, color = resale_price_real)) +
+  geom_point(alpha = 0.6, size = 1.5) +
+  scale_color_viridis_c(option = "plasma") +  # nice color gradient for price
+  labs(
+    title = "HDB Resale Prices by Location",
+    x = "Longitude",
+    y = "Latitude",
+    color = "Price (SGD, inflation-adjusted)"
+  ) +
+  theme_minimal()
+
+```
+```{r}
+ggplot(resale_real, aes(x = X, y = Y, color = resale_price)) +
+  geom_point(alpha = 0.6, size = 1.5) +
+  scale_color_viridis_c(option = "plasma") +  # nice color gradient for price
+  labs(
+    title = "HDB Resale Prices by SVY coordinate",
+    x = "X",
+    y = "Y",
+    color = "Price (SGD)"
+  ) +
+  theme_minimal()
+```
+
+
